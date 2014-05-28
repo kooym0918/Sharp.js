@@ -42,22 +42,21 @@ Sharp.Scene = function () {
     Sharp.Scene.Sprite = [];
 };
 
-Sharp.Scene.PushScene = function (Scene) {
-    Sharp.Scene.Sprite.push(Scene);
+Sharp.Scene.PushScene = function (Sprite) {
+    Sharp.Scene.Sprite.push(Sprite);
 };
 
-Sharp.Scene.PopScene = function (Scene) {
-    if (Sharp.Scene.indexOf(Scene) != -1) {
-        Sharp.Scene = Sharp.Scene.remove(Scene).bind(this);
+Sharp.Scene.PopScene = function (Sprite) {
+    if (Sharp.Scene.Sprite.indexOf(Sprite) != -1) {
+        Sharp.Scene.Remove(Sprite);
     }
 };
 
-Sharp.Scene.remove = function () {
-    var what, a = Sharp.Scene, L = a.length, ax;
-    while (L > 1 && Sharp.Scene.length) {
-        what = a[--L];
-        while ((ax = Sharp.Scene.indexOf(what)) !== -1) {
-            Sharp.Scene.splice(ax, 1);
+Sharp.Scene.Remove = function (Sprite) {
+    for (var i = 0, length = Sharp.Scene.Sprite.length; i < length; i++) {
+        if (Sharp.Scene.Sprite[i] == Sprite) {
+            Sharp.Scene.Sprite.splice(i, 1);
+            return;
         }
     }
 };
