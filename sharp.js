@@ -9,17 +9,17 @@ Sharp.Game = function (canvasId) {
     Sharp.canvas.height = 768;
     Sharp.context = Sharp.canvas.getContext('2d');
 
-    // Scene 초기화
+    // 초기화가 필요한 객체를 초기화한다.
     Sharp.Scene();
-
-    for (var i = 0; i < Sharp.Input.KeyStatus.length; i++) {
-        Sharp.Input.KeyStatus[i] = Sharp.Input.KeyState.KEY_NONE;
-    }
+    Sharp.Input();
+    Sharp.FPS();
 
     requestAnimationFrame(this.Update.bind(this));
 };
 
 Sharp.Game.prototype.Update = function () {
+    Sharp.FPS.Calculate();
+
     for (var i = 0; i < Sharp.Scene.Sprite.length; i++) {
         // Scene에서 Update 함수가 구현되어 있으면 함수를 호출한다.
         if (Sharp.Scene.Sprite[i].Update !== undefined) {
@@ -62,8 +62,11 @@ Sharp.Scene.Remove = function (Sprite) {
 };
 
 Sharp.DrawImage = function (Scene) {
-    Sharp.context.drawImage(
-        Scene.sprite, Scene.Pos.x, Scene.Pos.y);
+    //Sharp.context.drawImage(Scene.sprite, Scene.Pos.x, Scene.Pos.y);
+    Sharp.context.save();
+    Sharp.context.translate(Scene.Pos.x, Scene.Pos.y);
+    Sharp.context.drawImage(Scene.sprite, 0, 0);
+    Sharp.context.restore();
 };
 
 Sharp.Sprite = function (src) {
@@ -98,7 +101,27 @@ Sharp.Point.prototype.AddPos = function (x, y) {
     this.y += y;
 };
 
-Sharp.Input = function () { };
+Sharp.FPS = function () {
+    Sharp.FPS.LastCalledTime = 0;
+    Sharp.FPS.FPS = 0;
+};
+
+Sharp.FPS.Calculate = function () {
+    if (!Sharp.FPS.LastCalledTime) {
+        Sharp.FPS.LastCalledTime = new Date().getTime();
+        Sharp.FPS.FPS = 0;
+        return;
+    }
+    var Delta = (new Date().getTime() - Sharp.FPS.LastCalledTime) / 1000;
+    Sharp.FPS.LastCalledTime = new Date().getTime();
+    Sharp.FPS.FPS = 1 / Delta;
+};
+
+Sharp.Input = function () {
+    for (var i = 0; i < this.Input.KeyStatus.length; i++) {
+        this.Input.KeyStatus[i] = Sharp.Input.KeyState.KEY_NONE;
+    }
+};
 
 Sharp.Input.GetKey = function (Key) {
     return Sharp.Input.KeyStatus[Sharp.Input.Keyboard[Key]];
