@@ -20,10 +20,10 @@ Sharp.Game = function (canvasId) {
 };
 
 Sharp.Game.prototype.Update = function () {
-    for (var i = 0; i < Sharp.Scene.Scene.length; i++) {
+    for (var i = 0; i < Sharp.Scene.Sprite.length; i++) {
         // Scene에서 Update 함수가 구현되어 있으면 함수를 호출한다.
-        if (Sharp.Scene.Scene[i].Update !== undefined) {
-            Sharp.Scene.Scene[i].Update();
+        if (Sharp.Scene.Sprite[i].Update !== undefined) {
+            Sharp.Scene.Sprite[i].Update();
         }
     }
     requestAnimationFrame(this.Update.bind(this));
@@ -39,11 +39,11 @@ Sharp.Game.prototype.Update = function () {
 
 // 자동으로 Update할 Scene들을 집어넣는 곳들이다. 
 Sharp.Scene = function () {
-    Sharp.Scene.Scene = [];
+    Sharp.Scene.Sprite = [];
 };
 
 Sharp.Scene.PushScene = function (Scene) {
-    Sharp.Scene.Scene.push(Scene);
+    Sharp.Scene.Sprite.push(Scene);
 };
 
 Sharp.Scene.PopScene = function (Scene) {
