@@ -117,6 +117,26 @@ Sharp.FPS.Calculate = function () {
     Sharp.FPS.FPS = 1 / Delta;
 };
 
+Sharp.Regulator = function (Freq) {
+    this.Freq = Freq;
+    this.LastTime = 0;
+};
+
+Sharp.Regulator.prototype.isReady = function () {
+    if (!this.LastTime) {
+        this.LastTime = new Date().getTime();
+        return false;
+    }
+    var Delta = (new Date().getTime() - this.LastTime) / 1000;
+    if (Delta > 1 / this.Freq) {
+        this.LastTime = new Date().getTime();
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 Sharp.Input = function () {
     for (var i = 0; i < this.Input.KeyStatus.length; i++) {
         this.Input.KeyStatus[i] = Sharp.Input.KeyState.KEY_NONE;
