@@ -78,30 +78,28 @@ Sharp.cameraManager.turnOff = function () {
 };
 Sharp.cameraManager.update = function () {
     try {
-        Sharp.camera.pos.x =
-            (Sharp.camera.target.pos.x + Sharp.camera.target.sprite.width / 2 - Sharp.canvas.width / 2) >= 0 ?
-            (Sharp.camera.target.pos.x + Sharp.camera.target.sprite.width / 2 - Sharp.canvas.width / 2) : 0;
-        Sharp.camera.pos.y =
-            (Sharp.camera.target.pos.y + Sharp.camera.target.sprite.height / 2 - Sharp.canvas.height / 2) >= 0 ?
-            (Sharp.camera.target.pos.y + Sharp.camera.target.sprite.height / 2 - Sharp.canvas.height / 2) : 0;
+        var before = new Sharp.point(Sharp.camera.pos.x, Sharp.camera.pos.y),
+            temp = new Sharp.point(
+            Sharp.camera.target.pos.x + Sharp.camera.target.sprite.width / 2 - Sharp.canvas.width / 2,
+            Sharp.camera.target.pos.y + Sharp.camera.target.sprite.height / 2 - Sharp.canvas.height / 2);
 
-
-        if (Sharp.camera.target.pos.x + Sharp.camera.target.sprite.width / 2 - Sharp.canvas.width / 2 + Sharp.canvas.width > Sharp.camera.size.x) {
-            Sharp.camera.pos.x = Sharp.camera.size.x - Sharp.canvas.width;
+        if (temp.x + Sharp.canvas.width > Sharp.camera.size.x) {
+            temp.x = Sharp.camera.size.x - Sharp.canvas.width;
+        }
+        if (temp.x < 0) {
+            temp.x = 0;
+        }
+        if (temp.y + Sharp.canvas.height > Sharp.camera.size.y) {
+            temp.y = Sharp.camera.size.y - Sharp.canvas.height;
+        }
+        if (temp.y < 0) {
+            temp.y = 0;
         }
 
-        if (Sharp.camera.pos.x < 0) {
-            Sharp.camera.pos.x = 0;
-        }
-        if (Sharp.camera.target.pos.y + Sharp.camera.target.sprite.height / 2 - Sharp.canvas.height / 2 + Sharp.canvas.height > Sharp.camera.size.y) {
-            Sharp.camera.pos.y = Sharp.camera.size.y - Sharp.canvas.height;
-        }
-        if (Sharp.camera.pos.y < 0) {
-            Sharp.camera.pos.y = 0;
-        }
-        //console.log(Sharp.camera.pos.x + ' ' + Sharp.camera.pos.y);
+        Sharp.camera.pos.x += (temp.x - before.x) * 0.1;
+        Sharp.camera.pos.y += (temp.y - before.y) * 0.1;
     } catch (e) {
-        console.log(e);
+        console.log('Camera Error :: ' + e);
         Sharp.camera.pos.x = 0;
         Sharp.camera.pos.y = 0;
     }
