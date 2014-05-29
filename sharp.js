@@ -33,6 +33,8 @@ Sharp.update = function () {
     Sharp.context.fillStyle = '#fff';
     Sharp.context.fillRect(0, 0, Sharp.canvas.width, Sharp.canvas.height);
 
+    Sharp.cameraManager.update();
+
     if (Sharp.render !== undefined) {
         Sharp.render();
     }
@@ -43,17 +45,14 @@ Sharp.update = function () {
 Sharp.scene = function () {
     Sharp.scene.sprite = [];
 };
-
 Sharp.scene.push = function (sprite) {
     Sharp.scene.sprite.push(sprite);
 };
-
 Sharp.scene.pop = function (sprite) {
     if (Sharp.scene.sprite.indexOf(sprite) != -1) {
         Sharp.scene.remove(sprite);
     }
 };
-
 Sharp.scene.remove = function (sprite) {
     for (var i = 0, length = Sharp.scene.sprite.length; i < length; i++) {
         if (Sharp.scene.sprite[i] == sprite) {
@@ -63,22 +62,66 @@ Sharp.scene.remove = function (sprite) {
     }
 };
 
+Sharp.cameraManager = function (target, point) {
+    Sharp.camera = {
+        'target': target,
+        'size': point,
+        'state': false,
+        'pos': new Sharp.point(0, 0)
+    };
+};
+Sharp.cameraManager.turnOn = function () {
+    Sharp.camera.state = true;
+};
+Sharp.cameraManager.turnOff = function () {
+    Sharp.camera.state = false;
+};
+Sharp.cameraManager.update = function () {
+    try {
+        Sharp.camera.pos.x =
+            (Sharp.camera.target.pos.x + Sharp.camera.target.sprite.width / 2 - Sharp.canvas.width / 2) >= 0 ?
+            (Sharp.camera.target.pos.x + Sharp.camera.target.sprite.width / 2 - Sharp.canvas.width / 2) : 0;
+        Sharp.camera.pos.y =
+            (Sharp.camera.target.pos.y + Sharp.camera.target.sprite.height / 2 - Sharp.canvas.height / 2) >= 0 ?
+            (Sharp.camera.target.pos.y + Sharp.camera.target.sprite.height / 2 - Sharp.canvas.height / 2) : 0;
+
+
+        if (Sharp.camera.target.pos.x + Sharp.camera.target.sprite.width / 2 - Sharp.canvas.width / 2 + Sharp.canvas.width > Sharp.camera.size.x) {
+            Sharp.camera.pos.x = Sharp.camera.size.x - Sharp.canvas.width;
+        }
+
+        if (Sharp.camera.pos.x < 0) {
+            Sharp.camera.pos.x = 0;
+        }
+        if (Sharp.camera.target.pos.y + Sharp.camera.target.sprite.height / 2 - Sharp.canvas.height / 2 + Sharp.canvas.height > Sharp.camera.size.y) {
+            Sharp.camera.pos.y = Sharp.camera.size.y - Sharp.canvas.height;
+        }
+        if (Sharp.camera.pos.y < 0) {
+            Sharp.camera.pos.y = 0;
+        }
+        //console.log(Sharp.camera.pos.x + ' ' + Sharp.camera.pos.y);
+    } catch (e) {
+        console.log(e);
+        Sharp.camera.pos.x = 0;
+        Sharp.camera.pos.y = 0;
+    }
+};
+
 Sharp.sprite = function (src) {
     this.sprite = new Image();
     this.sprite.src = src;
 
-    this.Pos = new Sharp.point(0, 0);
+    this.pos = new Sharp.point(0, 0);
 };
-
-Sharp.sprite.prototype.update = function () { };
-
+Sharp.sprite.prototype.update = function () {
+    /* 아무것도 하지 않는다 */
+};
 Sharp.sprite.prototype.render = function () {
     Sharp.context.save();
-    Sharp.context.translate(this.Pos.x, this.Pos.y);
+    Sharp.context.translate(this.pos.x - Sharp.camera.pos.x, this.pos.y - Sharp.camera.pos.y);
     Sharp.context.drawImage(this.sprite, 0, 0);
     Sharp.context.restore();
 };
-
 Object.defineProperties(Sharp.sprite, {
     'width': {
         'get': function () {
@@ -100,16 +143,13 @@ Sharp.font = function (style, text, point) {
     
     this.pos = new Sharp.point(point.x, point.y);
 };
-
 Sharp.font.prototype.changeText = function (text) {
     this.text = text;
 };
-
-Sharp.font.prototype.setPos = function (point) {
+Sharp.font.prototype.setpos = function (point) {
     this.pos.x = point.x;
     this.pos.y = point.y;
 };
-
 Sharp.font.prototype.render = function () {
     Sharp.context.save();
     Sharp.context.font = this.style;
@@ -122,8 +162,7 @@ Sharp.point = function (x, y) {
     this.x = x;
     this.y = y;
 };
-
-Sharp.point.prototype.AddPos = function (x, y) {
+Sharp.point.prototype.Addpos = function (x, y) {
     this.x += x;
     this.y += y;
 };
@@ -132,7 +171,6 @@ Sharp.FPS = function () {
     Sharp.FPS.LastCalledTime = 0;
     Sharp.FPS.FPS = 0;
 };
-
 Sharp.FPS.calculate = function () {
     if (!Sharp.FPS.LastCalledTime) {
         Sharp.FPS.LastCalledTime = new Date().getTime();
@@ -148,7 +186,6 @@ Sharp.regulator = function (Freq) {
     this.Freq = Freq;
     this.LastTime = 0;
 };
-
 Sharp.regulator.prototype.isReady = function () {
     if (!this.LastTime) {
         this.LastTime = new Date().getTime();
@@ -169,26 +206,17 @@ Sharp.input = function () {
         this.input.keyStatus[i] = Sharp.input.keyState.KEY_NONE;
     }
 };
-
 Sharp.input.getKey = function (key) {
     return Sharp.input.keyStatus[Sharp.input.keyboard[key]];
 };
-
-Sharp.input.keyStatus = new Array(255);
-
-Sharp.input.keyState = {
-    KEY_NONE: 0,
-    KEY_DOWN: 1
-};
-
 Sharp.input.onKeyDown = function (e) {
     Sharp.input.keyStatus[e.keyCode] = Sharp.input.keyState.KEY_DOWN;
 };
-
 Sharp.input.onKeyUp = function (e) {
     Sharp.input.keyStatus[e.keyCode] = Sharp.input.keyState.KEY_NONE;
 };
-
+Sharp.input.keyStatus = new Array(255);
+Sharp.input.keyState = { KEY_NONE: 0, KEY_DOWN: 1 };
 Sharp.input.keyboard = {
     A: 'A'.charCodeAt(0),
     B: 'B'.charCodeAt(0),
