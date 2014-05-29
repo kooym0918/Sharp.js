@@ -1,6 +1,22 @@
-﻿/*global document, Image, window, setInterval, requestAnimationFrame*/
+﻿/*global document, Image, window, requestAnimationFrame*/
 var Sharp = {
     version: '0.1'
+};
+
+Sharp.init = function (canvasId) {
+    Sharp.canvas = document.getElementById(canvasId);
+    Sharp.canvas.width = 1024;
+    Sharp.canvas.height = 768;
+    Sharp.context = Sharp.canvas.getContext('2d');
+
+    Sharp.context.textBaseline = 'hanging';
+
+    // initialize
+    Sharp.scene();
+    Sharp.input();
+    Sharp.FPS();
+
+    requestAnimationFrame(Sharp.update.bind(this));
 };
 
 Sharp.update = function () {
@@ -24,7 +40,6 @@ Sharp.update = function () {
     requestAnimationFrame(Sharp.update.bind(this));
 };
 
-// 자동으로 update할 scene들을 집어넣는 곳들이다. 
 Sharp.scene = function () {
     Sharp.scene.sprite = [];
 };
@@ -48,32 +63,20 @@ Sharp.scene.remove = function (sprite) {
     }
 };
 
-Sharp.drawImage = function (sprite) {
-    Sharp.context.save();
-    Sharp.context.translate(sprite.Pos.x, sprite.Pos.y);
-    Sharp.context.drawImage(sprite.sprite, 0, 0);
-    Sharp.context.restore();
-};
-
-Sharp.init = function (canvasId) {
-    Sharp.canvas = document.getElementById(canvasId);
-    Sharp.canvas.width = 1024;
-    Sharp.canvas.height = 768;
-    Sharp.context = Sharp.canvas.getContext('2d');
-
-    // 초기화가 필요한 객체를 초기화한다.
-    Sharp.scene();
-    Sharp.input();
-    Sharp.FPS();
-
-    requestAnimationFrame(Sharp.update.bind(this));
-};
-
 Sharp.sprite = function (src) {
     this.sprite = new Image();
     this.sprite.src = src;
 
     this.Pos = new Sharp.point(0, 0);
+};
+
+Sharp.sprite.prototype.update = function () { };
+
+Sharp.sprite.prototype.render = function () {
+    Sharp.context.save();
+    Sharp.context.translate(this.Pos.x, this.Pos.y);
+    Sharp.context.drawImage(this.sprite, 0, 0);
+    Sharp.context.restore();
 };
 
 Object.defineProperties(Sharp.sprite, {
@@ -90,6 +93,30 @@ Object.defineProperties(Sharp.sprite, {
         'set': function () { }
     }
 });
+
+Sharp.font = function (style, text, point) {
+    this.style = style;
+    this.text = text;
+    
+    this.pos = new Sharp.point(point.x, point.y);
+};
+
+Sharp.font.prototype.changeText = function (text) {
+    this.text = text;
+};
+
+Sharp.font.prototype.setPos = function (point) {
+    this.pos.x = point.x;
+    this.pos.y = point.y;
+};
+
+Sharp.font.prototype.render = function () {
+    Sharp.context.save();
+    Sharp.context.font = this.style;
+    Sharp.context.translate(this.pos.x, this.pos.y);
+    Sharp.context.fillText(this.text, 0, 0);
+    Sharp.context.restore();
+};
 
 Sharp.point = function (x, y) {
     this.x = x;
