@@ -3,80 +3,80 @@ var Sharp = {
     version: '0.1'
 };
 
-Sharp.Game = function (canvasId) {
+Sharp.update = function () {
+    Sharp.FPS.calculate();
+
+    for (var i = 0; i < Sharp.scene.sprite.length; i++) {
+        // scene에서 update 함수가 구현되어 있으면 함수를 호출한다.
+        if (Sharp.scene.sprite[i].update !== undefined) {
+            Sharp.scene.sprite[i].update();
+        }
+    }
+
+    // 업데이트할 때마다 배경을 흰 색으로 채워준다.
+    Sharp.context.fillStyle = '#fff';
+    Sharp.context.fillRect(0, 0, Sharp.canvas.width, Sharp.canvas.height);
+
+    if (Sharp.render !== undefined) {
+        Sharp.render();
+    }
+
+    requestAnimationFrame(Sharp.update.bind(this));
+};
+
+// 자동으로 update할 scene들을 집어넣는 곳들이다. 
+Sharp.scene = function () {
+    Sharp.scene.sprite = [];
+};
+
+Sharp.scene.push = function (sprite) {
+    Sharp.scene.sprite.push(sprite);
+};
+
+Sharp.scene.pop = function (sprite) {
+    if (Sharp.scene.sprite.indexOf(sprite) != -1) {
+        Sharp.scene.remove(sprite);
+    }
+};
+
+Sharp.scene.remove = function (sprite) {
+    for (var i = 0, length = Sharp.scene.sprite.length; i < length; i++) {
+        if (Sharp.scene.sprite[i] == sprite) {
+            Sharp.scene.sprite.splice(i, 1);
+            return;
+        }
+    }
+};
+
+Sharp.drawImage = function (sprite) {
+    Sharp.context.save();
+    Sharp.context.translate(sprite.Pos.x, sprite.Pos.y);
+    Sharp.context.drawImage(sprite.sprite, 0, 0);
+    Sharp.context.restore();
+};
+
+Sharp.init = function (canvasId) {
     Sharp.canvas = document.getElementById(canvasId);
     Sharp.canvas.width = 1024;
     Sharp.canvas.height = 768;
     Sharp.context = Sharp.canvas.getContext('2d');
 
     // 초기화가 필요한 객체를 초기화한다.
-    Sharp.Scene();
-    Sharp.Input();
+    Sharp.scene();
+    Sharp.input();
     Sharp.FPS();
 
-    requestAnimationFrame(this.Update.bind(this));
+    requestAnimationFrame(Sharp.update.bind(this));
 };
 
-Sharp.Game.prototype.Update = function () {
-    Sharp.FPS.Calculate();
-
-    for (var i = 0; i < Sharp.Scene.Sprite.length; i++) {
-        // Scene에서 Update 함수가 구현되어 있으면 함수를 호출한다.
-        if (Sharp.Scene.Sprite[i].Update !== undefined) {
-            Sharp.Scene.Sprite[i].Update();
-        }
-    }
-    requestAnimationFrame(this.Update.bind(this));
-
-    // 업데이트할 때마다 배경을 흰 색으로 채워준다.
-    Sharp.context.fillStyle = '#fff';
-    Sharp.context.fillRect(0, 0, Sharp.canvas.width, Sharp.canvas.height);
-
-    if (this.Render !== undefined) {
-        this.Render();
-    }
-};
-
-// 자동으로 Update할 Scene들을 집어넣는 곳들이다. 
-Sharp.Scene = function () {
-    Sharp.Scene.Sprite = [];
-};
-
-Sharp.Scene.PushScene = function (Sprite) {
-    Sharp.Scene.Sprite.push(Sprite);
-};
-
-Sharp.Scene.PopScene = function (Sprite) {
-    if (Sharp.Scene.Sprite.indexOf(Sprite) != -1) {
-        Sharp.Scene.Remove(Sprite);
-    }
-};
-
-Sharp.Scene.Remove = function (Sprite) {
-    for (var i = 0, length = Sharp.Scene.Sprite.length; i < length; i++) {
-        if (Sharp.Scene.Sprite[i] == Sprite) {
-            Sharp.Scene.Sprite.splice(i, 1);
-            return;
-        }
-    }
-};
-
-Sharp.DrawImage = function (Scene) {
-    //Sharp.context.drawImage(Scene.sprite, Scene.Pos.x, Scene.Pos.y);
-    Sharp.context.save();
-    Sharp.context.translate(Scene.Pos.x, Scene.Pos.y);
-    Sharp.context.drawImage(Scene.sprite, 0, 0);
-    Sharp.context.restore();
-};
-
-Sharp.Sprite = function (src) {
+Sharp.sprite = function (src) {
     this.sprite = new Image();
     this.sprite.src = src;
 
-    this.Pos = new Sharp.Point(0, 0);
+    this.Pos = new Sharp.point(0, 0);
 };
 
-Object.defineProperties(Sharp.Sprite.prototype, {
+Object.defineProperties(Sharp.sprite, {
     'width': {
         'get': function () {
             return this.sprite.width;
@@ -91,12 +91,12 @@ Object.defineProperties(Sharp.Sprite.prototype, {
     }
 });
 
-Sharp.Point = function (x, y) {
+Sharp.point = function (x, y) {
     this.x = x;
     this.y = y;
 };
 
-Sharp.Point.prototype.AddPos = function (x, y) {
+Sharp.point.prototype.AddPos = function (x, y) {
     this.x += x;
     this.y += y;
 };
@@ -106,7 +106,7 @@ Sharp.FPS = function () {
     Sharp.FPS.FPS = 0;
 };
 
-Sharp.FPS.Calculate = function () {
+Sharp.FPS.calculate = function () {
     if (!Sharp.FPS.LastCalledTime) {
         Sharp.FPS.LastCalledTime = new Date().getTime();
         Sharp.FPS.FPS = 0;
@@ -117,12 +117,12 @@ Sharp.FPS.Calculate = function () {
     Sharp.FPS.FPS = 1 / Delta;
 };
 
-Sharp.Regulator = function (Freq) {
+Sharp.regulator = function (Freq) {
     this.Freq = Freq;
     this.LastTime = 0;
 };
 
-Sharp.Regulator.prototype.isReady = function () {
+Sharp.regulator.prototype.isReady = function () {
     if (!this.LastTime) {
         this.LastTime = new Date().getTime();
         return false;
@@ -135,34 +135,34 @@ Sharp.Regulator.prototype.isReady = function () {
     else {
         return false;
     }
-}
+};
 
-Sharp.Input = function () {
-    for (var i = 0; i < this.Input.KeyStatus.length; i++) {
-        this.Input.KeyStatus[i] = Sharp.Input.KeyState.KEY_NONE;
+Sharp.input = function () {
+    for (var i = 0; i < this.input.keyStatus.length; i++) {
+        this.input.keyStatus[i] = Sharp.input.keyState.KEY_NONE;
     }
 };
 
-Sharp.Input.GetKey = function (Key) {
-    return Sharp.Input.KeyStatus[Sharp.Input.Keyboard[Key]];
+Sharp.input.getKey = function (key) {
+    return Sharp.input.keyStatus[Sharp.input.keyboard[key]];
 };
 
-Sharp.Input.KeyStatus = new Array(255);
+Sharp.input.keyStatus = new Array(255);
 
-Sharp.Input.KeyState = {
+Sharp.input.keyState = {
     KEY_NONE: 0,
     KEY_DOWN: 1
 };
 
-Sharp.Input.onKeyDown = function (e) {
-    Sharp.Input.KeyStatus[e.keyCode] = Sharp.Input.KeyState.KEY_DOWN;
+Sharp.input.onKeyDown = function (e) {
+    Sharp.input.keyStatus[e.keyCode] = Sharp.input.keyState.KEY_DOWN;
 };
 
-Sharp.Input.onKeyUp = function (e) {
-    Sharp.Input.KeyStatus[e.keyCode] = Sharp.Input.KeyState.KEY_NONE;
+Sharp.input.onKeyUp = function (e) {
+    Sharp.input.keyStatus[e.keyCode] = Sharp.input.keyState.KEY_NONE;
 };
 
-Sharp.Input.Keyboard = {
+Sharp.input.keyboard = {
     A: 'A'.charCodeAt(0),
     B: 'B'.charCodeAt(0),
     C: 'C'.charCodeAt(0),
@@ -262,5 +262,5 @@ Sharp.Input.Keyboard = {
     QUOTE: 222
 };
 
-window.addEventListener('keydown', Sharp.Input.onKeyDown, false);
-window.addEventListener('keyup', Sharp.Input.onKeyUp, false);
+window.addEventListener('keydown', Sharp.input.onKeyDown, false);
+window.addEventListener('keyup', Sharp.input.onKeyUp, false);
