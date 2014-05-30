@@ -54,18 +54,18 @@ Sharp.update = function () {
     requestAnimationFrame(Sharp.update.bind(this));
 };
 
-Sharp.scene         = function () {
+Sharp.scene = function () {
     Sharp.scene.sprite = [];
 };
-Sharp.scene.push    = function (sprite) {
+Sharp.scene.push = function (sprite) {
     Sharp.scene.sprite.push(sprite);
 };
-Sharp.scene.pop     = function (sprite) {
+Sharp.scene.pop = function (sprite) {
     if (Sharp.scene.sprite.indexOf(sprite) != -1) {
         Sharp.scene.remove(sprite);
     }
 };
-Sharp.scene.remove  = function (sprite) {
+Sharp.scene.remove = function (sprite) {
     for (var i = 0, length = Sharp.scene.sprite.length; i < length; i++) {
         if (Sharp.scene.sprite[i] == sprite) {
             Sharp.scene.sprite.splice(i, 1);
@@ -74,7 +74,7 @@ Sharp.scene.remove  = function (sprite) {
     }
 };
 
-Sharp.cameraManager        = function (target, size) {
+Sharp.cameraManager = function (target, size) {
     Sharp.camera = {
         'target': target,
         'size': size,
@@ -119,7 +119,7 @@ Sharp.cameraManager.update = function () {
     }
 };
 
-Sharp.sprite                  = function (src) {
+Sharp.sprite = function (src) {
     this.sprite = new Image();
     this.sprite.src = src;
     this.camera = true;
@@ -153,7 +153,7 @@ Object.defineProperties(Sharp.sprite.prototype, {
     }
 });
 
-Sharp.animation                  = function (freq) {
+Sharp.animation = function (freq) {
     this.freq = freq;
     this.sprite = [];
     this.camera = true;
@@ -164,7 +164,7 @@ Sharp.animation                  = function (freq) {
 
     this.pos = new Sharp.point(0, 0);
 };
-Sharp.animation.prototype.push   = function (src) {
+Sharp.animation.prototype.push = function (src) {
     var temp = new Image();
     temp.src = src;
 
@@ -202,15 +202,15 @@ Object.defineProperties(Sharp.animation.prototype, {
     }
 });
 
-Sharp.font                      = function (style, text, point, color) {
+Sharp.font = function (style, text, point, color) {
     this.style = style;
     this.text = text;
     this.camera = true;
     this.color = color;
-    
+
     this.pos = new Sharp.point(point.x, point.y);
 };
-Sharp.font.prototype.render     = function () {
+Sharp.font.prototype.render = function () {
     Sharp.context.save();
     Sharp.context.font = this.style;
     Sharp.context.fillStyle = this.color;
@@ -226,31 +226,31 @@ Sharp.font.prototype.render     = function () {
     Sharp.context.restore();
 };
 
-Sharp.point                     = function (x, y) {
+Sharp.point = function (x, y) {
     this.x = x;
     this.y = y;
 };
 
-Sharp.FPS           = function () {
-    Sharp.FPS.LastCalledTime = 0;
+Sharp.FPS = function () {
+    Sharp.FPS.FPSRegulator = new Sharp.regulator(1);
     Sharp.FPS.FPS = 0;
+    Sharp.FPS.calculatingFPS = 0;
 };
 Sharp.FPS.calculate = function () {
-    if (!Sharp.FPS.LastCalledTime) {
-        Sharp.FPS.LastCalledTime = new Date().getTime();
-        Sharp.FPS.FPS = 0;
-        return;
+    if (Sharp.FPS.FPSRegulator.isReady()) {
+        Sharp.FPS.FPS = Sharp.FPS.calculatingFPS;
+        Sharp.FPS.calculatingFPS = 0;
     }
-    var Delta = (new Date().getTime() - Sharp.FPS.LastCalledTime) / 1000;
-    Sharp.FPS.LastCalledTime = new Date().getTime();
-    Sharp.FPS.FPS = 1 / Delta;
+    else {
+        Sharp.FPS.calculatingFPS++;
+    }
 };
 
-Sharp.regulator                     = function (freq) {
+Sharp.regulator = function (freq) {
     this.freq = freq;
     this.lastTime = 0;
 };
-Sharp.regulator.prototype.isReady   = function () {
+Sharp.regulator.prototype.isReady = function () {
     if (!this.lastTime) {
         this.lastTime = new Date().getTime();
         return true;
@@ -265,23 +265,23 @@ Sharp.regulator.prototype.isReady   = function () {
     }
 };
 
-Sharp.input             = function () {
+Sharp.input = function () {
     for (var i = 0; i < this.input.keyStatus.length; i++) {
         this.input.keyStatus[i] = Sharp.input.keyState.KEY_NONE;
     }
 };
-Sharp.input.getKey      = function (key) {
+Sharp.input.getKey = function (key) {
     return Sharp.input.keyStatus[Sharp.input.keyboard[key]];
 };
-Sharp.input.onKeyDown   = function (e) {
+Sharp.input.onKeyDown = function (e) {
     Sharp.input.keyStatus[e.keyCode] = Sharp.input.keyState.KEY_DOWN;
 };
-Sharp.input.onKeyUp     = function (e) {
+Sharp.input.onKeyUp = function (e) {
     Sharp.input.keyStatus[e.keyCode] = Sharp.input.keyState.KEY_NONE;
 };
-Sharp.input.keyStatus   = new Array(255);
-Sharp.input.keyState    = { KEY_NONE: 0, KEY_DOWN: 1 };
-Sharp.input.keyboard    = {
+Sharp.input.keyStatus = new Array(255);
+Sharp.input.keyState = { KEY_NONE: 0, KEY_DOWN: 1 };
+Sharp.input.keyboard = {
     A: 'A'.charCodeAt(0),
     B: 'B'.charCodeAt(0),
     C: 'C'.charCodeAt(0),
