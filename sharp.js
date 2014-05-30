@@ -22,8 +22,18 @@ Sharp.init = function (canvasId) {
 Sharp.update = function () {
     Sharp.FPS.calculate();
 
+    // 전역 Update
+    if (Sharp.onUpdate !== undefined) {
+        Sharp.onUpdate();
+    }
+
     for (var i = 0; i < Sharp.scene.sprite.length; i++) {
-        // scene에서 update 함수가 구현되어 있으면 함수를 호출한다.
+        // 사용자 지정 update 기능
+        if (Sharp.scene.sprite[i].onUpdate !== undefined) {
+            Sharp.scene.sprite[i].onUpdate();
+        }
+
+        // 엔진 자체의 update 기능
         if (Sharp.scene.sprite[i].update !== undefined) {
             Sharp.scene.sprite[i].update();
         }
@@ -35,25 +45,25 @@ Sharp.update = function () {
 
     Sharp.cameraManager.update();
 
-    if (Sharp.render !== undefined) {
-        Sharp.render();
+    if (Sharp.onRender !== undefined) {
+        Sharp.onRender();
     }
 
     requestAnimationFrame(Sharp.update.bind(this));
 };
 
-Sharp.scene = function () {
+Sharp.scene         = function () {
     Sharp.scene.sprite = [];
 };
-Sharp.scene.push = function (sprite) {
+Sharp.scene.push    = function (sprite) {
     Sharp.scene.sprite.push(sprite);
 };
-Sharp.scene.pop = function (sprite) {
+Sharp.scene.pop     = function (sprite) {
     if (Sharp.scene.sprite.indexOf(sprite) != -1) {
         Sharp.scene.remove(sprite);
     }
 };
-Sharp.scene.remove = function (sprite) {
+Sharp.scene.remove  = function (sprite) {
     for (var i = 0, length = Sharp.scene.sprite.length; i < length; i++) {
         if (Sharp.scene.sprite[i] == sprite) {
             Sharp.scene.sprite.splice(i, 1);
@@ -62,50 +72,50 @@ Sharp.scene.remove = function (sprite) {
     }
 };
 
-Sharp.cameraManager = function (target, point) {
+Sharp.cameraManager         = function (target, size) {
     Sharp.camera = {
         'target': target,
-        'size': point,
+        'size': size,
         'state': false,
         'pos': new Sharp.point(0, 0)
     };
 };
-Sharp.cameraManager.turnOn = function () {
-    Sharp.camera.state = true;
-};
-Sharp.cameraManager.turnOff = function () {
-    Sharp.camera.state = false;
-};
 Sharp.cameraManager.update = function () {
-    try {
-        var before = new Sharp.point(Sharp.camera.pos.x, Sharp.camera.pos.y),
-            temp = new Sharp.point(
-            Sharp.camera.target.pos.x + Sharp.camera.target.sprite.width / 2 - Sharp.canvas.width / 2,
-            Sharp.camera.target.pos.y + Sharp.camera.target.sprite.height / 2 - Sharp.canvas.height / 2);
+    if (Sharp.camera.state === true) {
+        try {
+            var before = new Sharp.point(Sharp.camera.pos.x, Sharp.camera.pos.y),
+                temp = new Sharp.point(
+                Sharp.camera.target.pos.x + Sharp.camera.target.sprite.width / 2 - Sharp.canvas.width / 2,
+                Sharp.camera.target.pos.y + Sharp.camera.target.sprite.height / 2 - Sharp.canvas.height / 2);
 
-        if (temp.x + Sharp.canvas.width > Sharp.camera.size.x) {
-            temp.x = Sharp.camera.size.x - Sharp.canvas.width;
-        }
-        if (temp.x < 0) {
-            temp.x = 0;
-        }
-        if (temp.y + Sharp.canvas.height > Sharp.camera.size.y) {
-            temp.y = Sharp.camera.size.y - Sharp.canvas.height;
-        }
-        if (temp.y < 0) {
-            temp.y = 0;
-        }
+            if (temp.x + Sharp.canvas.width > Sharp.camera.size.x) {
+                temp.x = Sharp.camera.size.x - Sharp.canvas.width;
+            }
+            if (temp.x < 0) {
+                temp.x = 0;
+            }
+            if (temp.y + Sharp.canvas.height > Sharp.camera.size.y) {
+                temp.y = Sharp.camera.size.y - Sharp.canvas.height;
+            }
+            if (temp.y < 0) {
+                temp.y = 0;
+            }
 
-        Sharp.camera.pos.x += (temp.x - before.x) * 0.1;
-        Sharp.camera.pos.y += (temp.y - before.y) * 0.1;
-    } catch (e) {
-        console.log('Camera Error :: ' + e);
+            Sharp.camera.pos.x += (temp.x - before.x) * 0.1;
+            Sharp.camera.pos.y += (temp.y - before.y) * 0.1;
+        } catch (e) {
+            console.log('Camera Error :: ' + e);
+            Sharp.camera.pos.x = 0;
+            Sharp.camera.pos.y = 0;
+        }
+    }
+    else {
         Sharp.camera.pos.x = 0;
         Sharp.camera.pos.y = 0;
     }
 };
 
-Sharp.sprite = function (src) {
+Sharp.sprite                  = function (src) {
     this.sprite = new Image();
     this.sprite.src = src;
     this.camera = true;
@@ -126,22 +136,8 @@ Sharp.sprite.prototype.render = function () {
     Sharp.context.drawImage(this.sprite, 0, 0);
     Sharp.context.restore();
 };
-Object.defineProperties(Sharp.sprite, {
-    'width': {
-        'get': function () {
-            return this.sprite.width;
-        },
-        'set': function () { }
-    },
-    'height': {
-        'get': function () {
-            return this.sprite.height;
-        },
-        'set': function () { }
-    }
-});
 
-Sharp.animation = function (freq) {
+Sharp.animation                  = function (freq) {
     this.freq = freq;
     this.sprite = [];
     this.camera = true;
@@ -152,7 +148,7 @@ Sharp.animation = function (freq) {
 
     this.pos = new Sharp.point(0, 0);
 }
-Sharp.animation.prototype.push = function (src) {
+Sharp.animation.prototype.push   = function (src) {
     var temp = new Image();
     temp.src = src;
 
@@ -178,7 +174,7 @@ Sharp.animation.prototype.render = function () {
     Sharp.context.restore();
 }
 
-Sharp.font = function (style, text, point, color) {
+Sharp.font                      = function (style, text, point, color) {
     this.style = style;
     this.text = text;
     this.camera = true;
@@ -186,14 +182,7 @@ Sharp.font = function (style, text, point, color) {
     
     this.pos = new Sharp.point(point.x, point.y);
 };
-Sharp.font.prototype.changeText = function (text) {
-    this.text = text;
-};
-Sharp.font.prototype.setpos = function (point) {
-    this.pos.x = point.x;
-    this.pos.y = point.y;
-};
-Sharp.font.prototype.render = function () {
+Sharp.font.prototype.render     = function () {
     Sharp.context.save();
     Sharp.context.font = this.style;
     Sharp.context.fillStyle = this.color;
@@ -207,16 +196,12 @@ Sharp.font.prototype.render = function () {
     Sharp.context.restore();
 };
 
-Sharp.point = function (x, y) {
+Sharp.point                     = function (x, y) {
     this.x = x;
     this.y = y;
 };
-Sharp.point.prototype.Addpos = function (x, y) {
-    this.x += x;
-    this.y += y;
-};
 
-Sharp.FPS = function () {
+Sharp.FPS           = function () {
     Sharp.FPS.LastCalledTime = 0;
     Sharp.FPS.FPS = 0;
 };
@@ -231,14 +216,14 @@ Sharp.FPS.calculate = function () {
     Sharp.FPS.FPS = 1 / Delta;
 };
 
-Sharp.regulator = function (freq) {
+Sharp.regulator                     = function (freq) {
     this.freq = freq;
     this.lastTime = 0;
 };
-Sharp.regulator.prototype.isReady = function () {
+Sharp.regulator.prototype.isReady   = function () {
     if (!this.lastTime) {
         this.lastTime = new Date().getTime();
-        return false;
+        return true;
     }
     var delta = (new Date().getTime() - this.lastTime) / 1000;
     if (delta > 1 / this.freq) {
@@ -250,23 +235,23 @@ Sharp.regulator.prototype.isReady = function () {
     }
 };
 
-Sharp.input = function () {
+Sharp.input             = function () {
     for (var i = 0; i < this.input.keyStatus.length; i++) {
         this.input.keyStatus[i] = Sharp.input.keyState.KEY_NONE;
     }
 };
-Sharp.input.getKey = function (key) {
+Sharp.input.getKey      = function (key) {
     return Sharp.input.keyStatus[Sharp.input.keyboard[key]];
 };
-Sharp.input.onKeyDown = function (e) {
+Sharp.input.onKeyDown   = function (e) {
     Sharp.input.keyStatus[e.keyCode] = Sharp.input.keyState.KEY_DOWN;
 };
-Sharp.input.onKeyUp = function (e) {
+Sharp.input.onKeyUp     = function (e) {
     Sharp.input.keyStatus[e.keyCode] = Sharp.input.keyState.KEY_NONE;
 };
-Sharp.input.keyStatus = new Array(255);
-Sharp.input.keyState = { KEY_NONE: 0, KEY_DOWN: 1 };
-Sharp.input.keyboard = {
+Sharp.input.keyStatus   = new Array(255);
+Sharp.input.keyState    = { KEY_NONE: 0, KEY_DOWN: 1 };
+Sharp.input.keyboard    = {
     A: 'A'.charCodeAt(0),
     B: 'B'.charCodeAt(0),
     C: 'C'.charCodeAt(0),

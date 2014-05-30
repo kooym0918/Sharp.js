@@ -215,10 +215,6 @@ pip-log.txt
 .mr.developer.cfg
 Ctrl CV.vcxproj
 Ctrl CV.vcxproj.filters
-Texture/Background.png
-Texture/Bird.png
-index.html
-script.js
 sharp.zip
 Ctrl CV.sln
 Sharp.js.sln
