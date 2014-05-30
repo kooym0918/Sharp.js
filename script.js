@@ -28,7 +28,7 @@ window.onload = function () {
 
     animation.onUpdate = function () {
         this.pos.x++;
-    }
+    };
 
     bird.onUpdate = function () {
         var isPressedX = false, isPressedY = false;
@@ -91,7 +91,7 @@ window.onload = function () {
         if (FPSRegulator.isReady()) {
             FPSFont.text = sharp.FPS.FPS.toFixed(2) + ' FPS';
         }
-    }
+    };
 
     sharp.onRender = function () {
         background.render();

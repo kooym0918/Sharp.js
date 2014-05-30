@@ -72,7 +72,7 @@ Sharp.scene.remove  = function (sprite) {
     }
 };
 
-Sharp.cameraManager         = function (target, size) {
+Sharp.cameraManager        = function (target, size) {
     Sharp.camera = {
         'target': target,
         'size': size,
@@ -85,8 +85,10 @@ Sharp.cameraManager.update = function () {
         try {
             var before = new Sharp.point(Sharp.camera.pos.x, Sharp.camera.pos.y),
                 temp = new Sharp.point(
-                Sharp.camera.target.pos.x + Sharp.camera.target.sprite.width / 2 - Sharp.canvas.width / 2,
-                Sharp.camera.target.pos.y + Sharp.camera.target.sprite.height / 2 - Sharp.canvas.height / 2);
+                Sharp.camera.target.pos.x + Sharp.camera.target.sprite.width / 2 -
+                Sharp.canvas.width / 2,
+                Sharp.camera.target.pos.y + Sharp.camera.target.sprite.height / 2 -
+                Sharp.canvas.height / 2);
 
             if (temp.x + Sharp.canvas.width > Sharp.camera.size.x) {
                 temp.x = Sharp.camera.size.x - Sharp.canvas.width;
@@ -131,11 +133,23 @@ Sharp.sprite.prototype.render = function () {
         Sharp.context.translate(this.pos.x, this.pos.y);
     }
     else {
-        Sharp.context.translate(this.pos.x - Sharp.camera.pos.x, this.pos.y - Sharp.camera.pos.y);
+        Sharp.context.translate(
+            this.pos.x - Sharp.camera.pos.x,
+            this.pos.y - Sharp.camera.pos.y);
     }
     Sharp.context.drawImage(this.sprite, 0, 0);
     Sharp.context.restore();
 };
+Object.defineProperties(Sharp.sprite.prototype, {
+    'width': {
+        'get': function () { return this.sprite.width; },
+        'set': function () { }
+    },
+    'height': {
+        'get': function () { return this.sprite.height; },
+        'set': function () { }
+    }
+});
 
 Sharp.animation                  = function (freq) {
     this.freq = freq;
@@ -147,13 +161,13 @@ Sharp.animation                  = function (freq) {
     this.regulator = new Sharp.regulator(freq);
 
     this.pos = new Sharp.point(0, 0);
-}
+};
 Sharp.animation.prototype.push   = function (src) {
     var temp = new Image();
     temp.src = src;
 
     this.sprite.push(temp);
-}
+};
 Sharp.animation.prototype.update = function () {
     if (this.regulator.isReady()) {
         this.now++;
@@ -161,18 +175,30 @@ Sharp.animation.prototype.update = function () {
             this.now = 0;
         }
     }
-}
+};
 Sharp.animation.prototype.render = function () {
     Sharp.context.save();
     if (this.camera === false) {
         Sharp.context.translate(this.pos.x, this.pos.y);
     }
     else {
-        Sharp.context.translate(this.pos.x - Sharp.camera.pos.x, this.pos.y - Sharp.camera.pos.y);
+        Sharp.context.translate(
+            this.pos.x - Sharp.camera.pos.x,
+            this.pos.y - Sharp.camera.pos.y);
     }
     Sharp.context.drawImage(this.sprite[this.now], 0, 0);
     Sharp.context.restore();
-}
+};
+Object.defineProperties(Sharp.animation.prototype, {
+    'width': {
+        'get': function () { return this.sprite[this.now].width; },
+        'set': function () { }
+    },
+    'height': {
+        'get': function () { return this.sprite[this.now].height; },
+        'set': function () { }
+    }
+});
 
 Sharp.font                      = function (style, text, point, color) {
     this.style = style;
@@ -190,7 +216,9 @@ Sharp.font.prototype.render     = function () {
         Sharp.context.translate(this.pos.x, this.pos.y);
     }
     else {
-        Sharp.context.translate(this.pos.x - Sharp.camera.pos.x, this.pos.y - Sharp.camera.pos.y);
+        Sharp.context.translate(
+            this.pos.x - Sharp.camera.pos.x,
+            this.pos.y - Sharp.camera.pos.y);
     }
     Sharp.context.fillText(this.text, 0, 0);
     Sharp.context.restore();
