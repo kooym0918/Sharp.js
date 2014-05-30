@@ -30,7 +30,7 @@ Sharp.update = function () {
     }
 
     // 업데이트할 때마다 배경을 흰 색으로 채워준다.
-    Sharp.context.fillStyle = '#fff';
+    Sharp.context.fillStyle = '#ffffff';
     Sharp.context.fillRect(0, 0, Sharp.canvas.width, Sharp.canvas.height);
 
     Sharp.cameraManager.update();
@@ -108,6 +108,7 @@ Sharp.cameraManager.update = function () {
 Sharp.sprite = function (src) {
     this.sprite = new Image();
     this.sprite.src = src;
+    this.camera = true;
 
     this.pos = new Sharp.point(0, 0);
 };
@@ -116,7 +117,12 @@ Sharp.sprite.prototype.update = function () {
 };
 Sharp.sprite.prototype.render = function () {
     Sharp.context.save();
-    Sharp.context.translate(this.pos.x - Sharp.camera.pos.x, this.pos.y - Sharp.camera.pos.y);
+    if (this.camera === false) {
+        Sharp.context.translate(this.pos.x, this.pos.y);
+    }
+    else {
+        Sharp.context.translate(this.pos.x - Sharp.camera.pos.x, this.pos.y - Sharp.camera.pos.y);
+    }
     Sharp.context.drawImage(this.sprite, 0, 0);
     Sharp.context.restore();
 };
@@ -135,9 +141,48 @@ Object.defineProperties(Sharp.sprite, {
     }
 });
 
-Sharp.font = function (style, text, point) {
+Sharp.animation = function (freq) {
+    this.freq = freq;
+    this.sprite = [];
+    this.camera = true;
+    this.now = 0;
+    this.pos = new Sharp.point(0, 0);
+
+    this.regulator = new Sharp.regulator(freq);
+
+    this.pos = new Sharp.point(0, 0);
+}
+Sharp.animation.prototype.push = function (src) {
+    var temp = new Image();
+    temp.src = src;
+
+    this.sprite.push(temp);
+}
+Sharp.animation.prototype.update = function () {
+    if (this.regulator.isReady()) {
+        this.now++;
+        if (this.now == this.sprite.length) {
+            this.now = 0;
+        }
+    }
+}
+Sharp.animation.prototype.render = function () {
+    Sharp.context.save();
+    if (this.camera === false) {
+        Sharp.context.translate(this.pos.x, this.pos.y);
+    }
+    else {
+        Sharp.context.translate(this.pos.x - Sharp.camera.pos.x, this.pos.y - Sharp.camera.pos.y);
+    }
+    Sharp.context.drawImage(this.sprite[this.now], 0, 0);
+    Sharp.context.restore();
+}
+
+Sharp.font = function (style, text, point, color) {
     this.style = style;
     this.text = text;
+    this.camera = true;
+    this.color = color;
     
     this.pos = new Sharp.point(point.x, point.y);
 };
@@ -151,7 +196,13 @@ Sharp.font.prototype.setpos = function (point) {
 Sharp.font.prototype.render = function () {
     Sharp.context.save();
     Sharp.context.font = this.style;
-    Sharp.context.translate(this.pos.x, this.pos.y);
+    Sharp.context.fillStyle = this.color;
+    if (this.camera === false) {
+        Sharp.context.translate(this.pos.x, this.pos.y);
+    }
+    else {
+        Sharp.context.translate(this.pos.x - Sharp.camera.pos.x, this.pos.y - Sharp.camera.pos.y);
+    }
     Sharp.context.fillText(this.text, 0, 0);
     Sharp.context.restore();
 };
@@ -180,18 +231,18 @@ Sharp.FPS.calculate = function () {
     Sharp.FPS.FPS = 1 / Delta;
 };
 
-Sharp.regulator = function (Freq) {
-    this.Freq = Freq;
-    this.LastTime = 0;
+Sharp.regulator = function (freq) {
+    this.freq = freq;
+    this.lastTime = 0;
 };
 Sharp.regulator.prototype.isReady = function () {
-    if (!this.LastTime) {
-        this.LastTime = new Date().getTime();
+    if (!this.lastTime) {
+        this.lastTime = new Date().getTime();
         return false;
     }
-    var Delta = (new Date().getTime() - this.LastTime) / 1000;
-    if (Delta > 1 / this.Freq) {
-        this.LastTime = new Date().getTime();
+    var delta = (new Date().getTime() - this.lastTime) / 1000;
+    if (delta > 1 / this.freq) {
+        this.lastTime = new Date().getTime();
         return true;
     }
     else {
