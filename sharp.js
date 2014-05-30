@@ -5,8 +5,10 @@ var Sharp = {
 
 Sharp.init = function (canvasId) {
     Sharp.canvas = document.getElementById(canvasId);
-    Sharp.canvas.width = 1024;
-    Sharp.canvas.height = 768;
+    Sharp.canvas.width =
+        Sharp.canvas.style.width.substring(0, Sharp.canvas.style.width.length - 2);
+    Sharp.canvas.height =
+        Sharp.canvas.style.height.substring(0, Sharp.canvas.style.height.length - 2);
     Sharp.context = Sharp.canvas.getContext('2d');
 
     Sharp.context.textBaseline = 'hanging';
