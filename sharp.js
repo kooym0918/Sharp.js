@@ -18,7 +18,7 @@ Sharp.init = function (canvasId) {
     Sharp.context.textBaseline = 'hanging';
 
     Sharp.load = {
-        'loading': 0,
+        'queued': 0,
         'loaded': 0
     };
 
@@ -32,7 +32,7 @@ Sharp.init = function (canvasId) {
 };
 
 Sharp.update = function () {
-    if (Sharp.load.loading == Sharp.load.loaded) {
+    if (Sharp.load.queued == Sharp.load.loaded) {
         Sharp.FPS.calculate();
 
         // 전역 Update
@@ -134,7 +134,7 @@ Sharp.sprite = function (src) {
     this.sprite = new Image();
     this.sprite.src = src;
     this.camera = true;
-    Sharp.load.loading++;
+    Sharp.load.queued++;
 
     this.sprite.addEventListener('load', function () {
         Sharp.load.loaded++;
@@ -190,7 +190,7 @@ Sharp.animation.prototype.push = function (src) {
     var temp = new Image();
     var self = this;
     temp.src = src;
-    Sharp.load.loading++;
+    Sharp.load.queued++;
 
     temp.addEventListener('load', function () {
         Sharp.load.loaded++;
