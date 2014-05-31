@@ -92,16 +92,18 @@ Sharp.cameraManager = function (target, size) {
         'state': false,
         'pos': new Sharp.point(0, 0)
     };
+
+    if (target) {
+        Sharp.camera.state = true;
+    }
 };
 Sharp.cameraManager.update = function () {
     if (Sharp.camera.state === true) {
         try {
             var before = new Sharp.point(Sharp.camera.pos.x, Sharp.camera.pos.y),
                 temp = new Sharp.point(
-                Sharp.camera.target.pos.x + Sharp.camera.target.sprite.width / 2 -
-                Sharp.canvas.width / 2,
-                Sharp.camera.target.pos.y + Sharp.camera.target.sprite.height / 2 -
-                Sharp.canvas.height / 2);
+                Sharp.camera.target.pos.x + Sharp.camera.target.width / 2 - Sharp.canvas.width / 2,
+                Sharp.camera.target.pos.y + Sharp.camera.target.height / 2 - Sharp.canvas.height / 2);
 
             if (temp.x + Sharp.canvas.width > Sharp.camera.size.x) {
                 temp.x = Sharp.camera.size.x - Sharp.canvas.width;
