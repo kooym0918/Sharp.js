@@ -13,44 +13,51 @@ Sharp.init = function (canvasId) {
 
     Sharp.context.textBaseline = 'hanging';
 
+    Sharp.load = {
+        'loading': 0,
+        'loaded': 0
+    };
+
     // initialize
     Sharp.scene();
     Sharp.input();
     Sharp.FPS();
+    Sharp.cameraManager();
 
     requestAnimationFrame(Sharp.update.bind(this));
 };
 
 Sharp.update = function () {
-    Sharp.FPS.calculate();
+    if (Sharp.load.loading == Sharp.load.loaded) {
+        Sharp.FPS.calculate();
 
-    // 전역 Update
-    if (Sharp.onUpdate !== undefined) {
-        Sharp.onUpdate();
-    }
-
-    for (var i = 0; i < Sharp.scene.sprite.length; i++) {
-        // 사용자 지정 update 기능
-        if (Sharp.scene.sprite[i].onUpdate !== undefined) {
-            Sharp.scene.sprite[i].onUpdate();
+        // 전역 Update
+        if (Sharp.onUpdate !== undefined) {
+            Sharp.onUpdate();
         }
 
-        // 엔진 자체의 update 기능
-        if (Sharp.scene.sprite[i].update !== undefined) {
-            Sharp.scene.sprite[i].update();
+        for (var i = 0; i < Sharp.scene.sprite.length; i++) {
+            // 사용자 지정 update 기능
+            if (Sharp.scene.sprite[i].onUpdate !== undefined) {
+                Sharp.scene.sprite[i].onUpdate();
+            }
+
+            // 엔진 자체의 update 기능
+            if (Sharp.scene.sprite[i].update !== undefined) {
+                Sharp.scene.sprite[i].update();
+            }
+        }
+
+        // 업데이트할 때마다 배경을 흰 색으로 채워준다.
+        Sharp.context.fillStyle = '#ffffff';
+        Sharp.context.fillRect(0, 0, Sharp.canvas.width, Sharp.canvas.height);
+
+        Sharp.cameraManager.update();
+
+        if (Sharp.onRender !== undefined) {
+            Sharp.onRender();
         }
     }
-
-    // 업데이트할 때마다 배경을 흰 색으로 채워준다.
-    Sharp.context.fillStyle = '#ffffff';
-    Sharp.context.fillRect(0, 0, Sharp.canvas.width, Sharp.canvas.height);
-
-    Sharp.cameraManager.update();
-
-    if (Sharp.onRender !== undefined) {
-        Sharp.onRender();
-    }
-
     requestAnimationFrame(Sharp.update.bind(this));
 };
 
@@ -123,6 +130,11 @@ Sharp.sprite = function (src) {
     this.sprite = new Image();
     this.sprite.src = src;
     this.camera = true;
+    Sharp.load.loading++;
+
+    this.sprite.addEventListener('load', function () {
+        Sharp.load.loaded++;
+    })
 
     this.pos = new Sharp.point(0, 0);
 };
@@ -167,6 +179,11 @@ Sharp.animation = function (freq) {
 Sharp.animation.prototype.push = function (src) {
     var temp = new Image();
     temp.src = src;
+    Sharp.load.loading++;
+
+    temp.addEventListener('load', function () {
+        Sharp.load.loaded++;
+    })
 
     this.sprite.push(temp);
 };

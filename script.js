@@ -27,10 +27,6 @@ window.onload = function () {
     sharp.scene.push(animation);
 
     animation.onUpdate = function () {
-        this.pos.x++;
-    };
-
-    bird.onUpdate = function () {
         var isPressedX = false, isPressedY = false;
         if (sharp.input.getKey('RIGHT') == sharp.input.keyState.KEY_DOWN) {
             smoothX += 0.5;
@@ -70,7 +66,7 @@ window.onload = function () {
                 smoothY--;
             }
         }
-            
+
         if (smoothX <= -7) {
             smoothX = -7;
         }
@@ -83,8 +79,11 @@ window.onload = function () {
         if (smoothY >= 7) {
             smoothY = 7;
         }
-        bird.pos.x += smoothX;
-        bird.pos.y += smoothY;
+        animation.pos.x += smoothX;
+        animation.pos.y += smoothY;
+    };
+
+    bird.onUpdate = function () {
     };
 
     sharp.onUpdate = function () {
