@@ -243,11 +243,11 @@ Sharp.animation.prototype.render = function () {
 };
 Object.defineProperties(Sharp.animation.prototype, {
     'width': {
-        'get': function () { return this.sprite[this.now].width; },
+        'get': function () { return this.size.x; },
         'set': function () { }
     },
     'height': {
-        'get': function () { return this.sprite[this.now].height; },
+        'get': function () { return this.size.y; },
         'set': function () { }
     }
 });
