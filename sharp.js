@@ -11,10 +11,8 @@ var Sharp = {
 
 Sharp.init = function (canvasId) {
     Sharp.canvas = document.getElementById(canvasId);
-    Sharp.canvas.width =
-        Sharp.canvas.style.width.substring(0, Sharp.canvas.style.width.length - 2);
-    Sharp.canvas.height =
-        Sharp.canvas.style.height.substring(0, Sharp.canvas.style.height.length - 2);
+    Sharp.canvas.width = Sharp.canvas.style.width.substring(0, Sharp.canvas.style.width.length - 2);
+    Sharp.canvas.height = Sharp.canvas.style.height.substring(0, Sharp.canvas.style.height.length - 2);
     Sharp.context = Sharp.canvas.getContext('2d');
 
     Sharp.context.textBaseline = 'hanging';
@@ -171,24 +169,37 @@ Object.defineProperties(Sharp.sprite.prototype, {
     }
 });
 
-Sharp.animation = function (freq) {
+/*
+ * baseline: 이미지들의 크기가 다를 때 어디를 기준으로 출력할 지 정한다.
+ * topleft, topright, bottomleft, bottomright 이렇게 네 가지를 입력받는다.
+ * 기본값은 topleft이다.
+ */
+Sharp.animation = function (freq, baseline) {
     this.freq = freq;
     this.sprite = [];
     this.camera = true;
     this.now = 0;
     this.pos = new Sharp.point(0, 0);
+    this.size = new Sharp.point(0, 0);
+
+    this.baseline = baseline || 'topleft';
 
     this.regulator = new Sharp.regulator(freq);
-
-    this.pos = new Sharp.point(0, 0);
 };
 Sharp.animation.prototype.push = function (src) {
     var temp = new Image();
+    var self = this;
     temp.src = src;
     Sharp.load.loading++;
 
     temp.addEventListener('load', function () {
         Sharp.load.loaded++;
+        if (self.size.x < this.width) {
+            self.size.x = this.width;
+        }
+        if (self.size.y < this.height) {
+            self.size.y = this.height;
+        }
     });
 
     this.sprite.push(temp);
@@ -211,7 +222,23 @@ Sharp.animation.prototype.render = function () {
             this.pos.x - Sharp.camera.pos.x,
             this.pos.y - Sharp.camera.pos.y);
     }
-    Sharp.context.drawImage(this.sprite[this.now], 0, 0);
+
+    if (this.baseline == 'topleft') {
+        Sharp.context.drawImage(this.sprite[this.now], 0, 0);
+    }
+    else if (this.baseline == 'topright') {
+        Sharp.context.drawImage(this.sprite[this.now],
+            this.size.x - this.sprite[this.now].width, 0);
+    }
+    else if (this.baseline == 'bottomleft') {
+        Sharp.context.drawImage(this.sprite[this.now],
+            0, this.size.y - this.sprite[this.now].height);
+    }
+    else if (this.baseline == 'bottomright') {
+        Sharp.context.drawImage(this.sprite[this.now],
+            this.size.x - this.sprite[this.now].width,
+            this.size.y - this.sprite[this.now].height);
+    }
     Sharp.context.restore();
 };
 Object.defineProperties(Sharp.animation.prototype, {
