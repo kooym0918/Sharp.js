@@ -1,4 +1,10 @@
 ﻿/*global document, Image, window, requestAnimationFrame*/
+
+/*
+ * Sharp.js
+ * Coded by Young Min
+ */
+
 var Sharp = {
     version: '0.1'
 };
@@ -134,7 +140,7 @@ Sharp.sprite = function (src) {
 
     this.sprite.addEventListener('load', function () {
         Sharp.load.loaded++;
-    })
+    });
 
     this.pos = new Sharp.point(0, 0);
 };
@@ -183,7 +189,7 @@ Sharp.animation.prototype.push = function (src) {
 
     temp.addEventListener('load', function () {
         Sharp.load.loaded++;
-    })
+    });
 
     this.sprite.push(temp);
 };
