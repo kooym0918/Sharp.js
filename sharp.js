@@ -59,6 +59,12 @@ Sharp.update = function () {
         if (Sharp.onRender !== undefined) {
             Sharp.onRender();
         }
+    } else {
+        Sharp.context.fillStyle = '#ffffff';
+        Sharp.context.fillRect(0, 0, Sharp.canvas.width, Sharp.canvas.height);
+
+        var loadingText = new Sharp.font('16px 맑은 고딕', '로드 중입니다. 잠시만 기다려주세요. ' + Math.round(Sharp.load.loaded / Sharp.load.queued * 100) + '% 완료됨', new Sharp.point(20, 20), '#000000');
+        loadingText.render();
     }
     requestAnimationFrame(Sharp.update.bind(this));
 };
