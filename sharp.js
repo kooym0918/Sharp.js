@@ -102,8 +102,8 @@ Sharp.cameraManager.update = function () {
         try {
             var before = new Sharp.point(Sharp.camera.pos.x, Sharp.camera.pos.y),
                 temp = new Sharp.point(
-                        Sharp.camera.target.pos.x + Sharp.camera.target.width / 2 - Sharp.canvas.width / 2,
-                        Sharp.camera.target.pos.y + Sharp.camera.target.height / 2 - Sharp.canvas.height / 2);
+                Sharp.camera.target.pos.x + Sharp.camera.target.width / 2 - Sharp.canvas.width / 2,
+                Sharp.camera.target.pos.y + Sharp.camera.target.height / 2 - Sharp.canvas.height / 2);
 
             if (temp.x + Sharp.canvas.width > Sharp.camera.size.x) {
                 temp.x = Sharp.camera.size.x - Sharp.canvas.width;
@@ -167,18 +167,6 @@ Object.defineProperties(Sharp.sprite.prototype, {
     },
     'height': {
         'get': function () { return this.sprite.height; },
-        'set': function () { }
-    },
-    'absolutePosX': {
-        'get': function () {
-            return this.pos.x - Sharp.camera.pos.x;
-        },
-        'set': function () { }
-    },
-    'absolutePosY': {
-        'get': function () {
-            return this.pos.y - Sharp.camera.pos.y;
-        },
         'set': function () { }
     }
 });
@@ -257,27 +245,11 @@ Sharp.animation.prototype.render = function () {
 };
 Object.defineProperties(Sharp.animation.prototype, {
     'width': {
-        'get': function () {
-            return this.size.x;
-        },
+        'get': function () { return this.size.x; },
         'set': function () { }
     },
     'height': {
-        'get': function () {
-            return this.size.y;
-        },
-        'set': function () { }
-    },
-    'absolutePosX': {
-        'get': function () {
-            return this.pos.x - Sharp.camera.pos.x;
-        },
-        'set': function () { }
-    },
-    'absolutePosY': {
-        'get': function () {
-            return this.pos.y - Sharp.camera.pos.y;
-        },
+        'get': function () { return this.size.y; },
         'set': function () { }
     }
 });

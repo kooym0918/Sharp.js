@@ -13,6 +13,7 @@ window.onload = function () {
     animation = new sharp.animation(1);
 
     sharp.cameraManager(bird, new sharp.point(2000, 800));
+    sharp.camera.state = true;
 
     for (var i = 1; i <= 2; i++) {
         animation.push('Texture/Animation_' + i + '.png');
@@ -78,11 +79,12 @@ window.onload = function () {
         if (smoothY >= 7) {
             smoothY = 7;
         }
-        bird.pos.x += smoothX;
-        bird.pos.y += smoothY;
+        animation.pos.x += smoothX;
+        animation.pos.y += smoothY;
     };
 
-    bird.onUpdate = function () { };
+    bird.onUpdate = function () {
+    };
 
     sharp.onUpdate = function () {
         if (FPSRegulator.isReady()) {
