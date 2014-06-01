@@ -122,8 +122,8 @@ Sharp.cameraManager.update = function () {
                 temp.y = 0;
             }
 
-            Sharp.camera.pos.x += (temp.x - before.x) * 0.1;
-            Sharp.camera.pos.y += (temp.y - before.y) * 0.1;
+            Sharp.camera.pos.x += Math.floor((temp.x - before.x) * 0.1);
+            Sharp.camera.pos.y += Math.floor((temp.y - before.y) * 0.1);
         } catch (e) {
             console.log('Camera Error :: ' + e);
             Sharp.camera.pos.x = 0;
