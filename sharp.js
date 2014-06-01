@@ -1,4 +1,6 @@
-﻿/*
+﻿/*global document, Image, window, requestAnimationFrame*/
+
+/*
  * Sharp.js
  * Coded by Young Min
  */
