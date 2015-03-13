@@ -1,9 +1,4 @@
-﻿/*
- * Sharp.js
- * Coded by Young Min
- */
-
-var Sharp = {
+﻿var Sharp = {
     version: '0.1'
 };
 
@@ -20,7 +15,6 @@ Sharp.init = function (canvasId) {
         'loaded': 0
     };
 
-    // initialize
     Sharp.scene();
     Sharp.input();
     Sharp.FPS();

@@ -1,5 +1,4 @@
-﻿/*global window, Sharp*/
-var sharp, bird, background, FPSRegulator, FPSFont, animation, smoothX, smoothY;
+﻿var sharp, bird, background, FPSRegulator, FPSFont, smoothX, smoothY;
 
 window.onload = function () {
     sharp = Sharp;
@@ -10,23 +9,17 @@ window.onload = function () {
     FPSRegulator = new sharp.regulator(2),
     FPSFont = new sharp.font('20px 맑은 고딕', '', new sharp.point(10, 10), '#aaa');
     FPSFont.camera = false;
-    animation = new sharp.animation(1);
 
     sharp.cameraManager(bird, new sharp.point(2000, 800));
     sharp.camera.state = true;
-
-    for (var i = 1; i <= 2; i++) {
-        animation.push('Texture/Animation_' + i + '.png');
-    }
 
     smoothX = 0,
     smoothY = 0;
 
     sharp.scene.push(background);
     sharp.scene.push(bird);
-    sharp.scene.push(animation);
 
-    animation.onUpdate = function () {
+    bird.onUpdate = function () {
         var isPressedX = false, isPressedY = false;
         if (sharp.input.getKey('RIGHT') == sharp.input.keyState.KEY_DOWN) {
             smoothX += 0.5;
@@ -79,11 +72,8 @@ window.onload = function () {
         if (smoothY >= 7) {
             smoothY = 7;
         }
-        animation.pos.x += smoothX;
-        animation.pos.y += smoothY;
-    };
-
-    bird.onUpdate = function () {
+        bird.pos.x += smoothX;
+        bird.pos.y += smoothY;
     };
 
     sharp.onUpdate = function () {
@@ -94,7 +84,6 @@ window.onload = function () {
 
     sharp.onRender = function () {
         background.render();
-        animation.render();
         bird.render();
         FPSFont.render();
     };
