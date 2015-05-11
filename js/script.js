@@ -4,8 +4,8 @@ window.onload = function () {
     sharp = Sharp;
     sharp.init('Game');
 
-    bird = new sharp.sprite('Texture/Bird.png'),
-    background = new sharp.sprite('Texture/Background.png'),
+    bird = new sharp.sprite('img/bird.png'),
+    background = new sharp.sprite('img/background.png'),
     FPSRegulator = new sharp.regulator(2),
     FPSFont = new sharp.font('20px 맑은 고딕', '', new sharp.point(10, 10), '#aaa');
     FPSFont.camera = false;
